@@ -4,7 +4,7 @@ from typing import Sequence, Optional
 import os
 
 from argparse import ArgumentParser
-from datasets import load_dataset
+from datasets import load_dataset, DatasetDict
 from huggingface_hub import login, HfFolder
 
 """
@@ -17,7 +17,7 @@ Saves dataset to LOCAL_PATH.
 
 def can_make_dir(parser: ArgumentParser, arg: str) -> str:
     """
-    Return error if directory path not found, return filepath otherwise.
+    Return error if directory path cannot be made, return filepath otherwise.
     """
     try:
         os.makedirs(arg, exist_ok=True)
