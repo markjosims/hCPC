@@ -141,7 +141,7 @@ class AudioBatchData(Dataset):
             self.nextData = self.r.get()
             self.parseNextDataBlock()
             del self.nextData
-        self.nextPack = (self.currentPack + 1) % len(self.packageIndex)
+        self.nextPack = (self.currentPack + 1) % (len(self.packageIndex) or 1)
         seqStart, seqEnd = self.packageIndex[self.nextPack]
         if self.nextPack == 0 and len(self.packageIndex) > 1:
             self.prepare()
