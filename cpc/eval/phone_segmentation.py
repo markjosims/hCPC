@@ -39,6 +39,7 @@ def run(featureMaker,
         pathCheckpoint,
         onEncodings,
         toleranceInFrames=2,
+        output_segments=False,
         strict=False):
     print("%d batches" % len(dataLoader))
 
@@ -67,6 +68,10 @@ def run(featureMaker,
             predictedBoundaries = torch.nonzero(predictedBoundaries.view(-1), as_tuple=True)[0]
             # Ensure that minibatch boundaries are preserved
             predictedBoundaries = torch.unique(torch.cat((predictedBoundaries, seqEndIdx)), sorted=True)
+
+        if output_segments:
+            print(predictedBoundaries)
+            return
 
         maxRval = -np.inf
         diffs = torch.diff(label, dim=1)
@@ -173,6 +178,8 @@ def parse_args(argv):
     parser.add_argument('--ignore_cache', action='store_true',
                         help="Activate if the sequences in pathDB have"
                         " changed.")
+    parser.add_argument('--output_segments', '-os', action='store_true',
+                        help='Save segments to an output file instead of evaluating against gold labels.')
     parser.add_argument('--size_window', type=int, default=20480,
                         help="Number of frames to consider in each batch.")
     parser.add_argument('--nProcessLoader', type=int, default=8,
@@ -246,7 +253,7 @@ def main(argv):
     # with open(f"{pathCheckpoint}_args.json", 'w') as file:
     #     json.dump(vars(args), file, indent=2)
 
-    run(model, dataLoader, pathCheckpoint, args.get_encoded, args.tolerance, args.strict)
+    run(model, dataLoader, pathCheckpoint, args.get_encoded, args.tolerance, args.output_segments, args.strict)
 
 
 
