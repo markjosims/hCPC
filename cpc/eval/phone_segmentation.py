@@ -178,8 +178,10 @@ def parse_args(argv):
     parser.add_argument('--ignore_cache', action='store_true',
                         help="Activate if the sequences in pathDB have"
                         " changed.")
-    parser.add_argument('--output_segments', '-os', action='store_true',
-                        help='Save segments to an output file instead of evaluating against gold labels.')
+    parser.add_argument('--output_segments', '-os',
+                        help='Save segments to an output file.')
+    parser.add_argument('--no_labels', '-nl', action='store_true',
+                        help="Skip evaluating against gold labels, output predictions only.")
     parser.add_argument('--size_window', type=int, default=20480,
                         help="Number of frames to consider in each batch.")
     parser.add_argument('--nProcessLoader', type=int, default=8,
@@ -219,10 +221,12 @@ def main(argv):
         print("Attach debugger now")
         ptvsd.wait_for_attach()
 
-    phoneLabels, nPhones = parseSeqLabels(args.pathPhone)
-    # wordLabels = None
-    # if args.pathWords is not None:
-    #     wordLabels, nWords = parseSeqLabels(args.pathWords)
+    phoneLabels, nPhones = None, None
+    if not args.no_labels:
+        phoneLabels, nPhones = parseSeqLabels(args.pathPhone)
+        # wordLabels = None
+        # if args.pathWords is not None:
+        #     wordLabels, nWords = parseSeqLabels(args.pathWords)
     
     seqNames, speakers = findAllSeqs(args.pathDB,
                                     extension=args.file_extension,
