@@ -60,7 +60,7 @@ def run(featureMaker,
     for step, fulldata in tqdm.tqdm(enumerate(dataLoader)):
         with torch.no_grad():
             batchData, labelData = fulldata
-            label = labelData['phone']
+            label = labelData.get('phone', None)
             cFeature, encodedData, label, extraLosses = model(batchData.cuda(), label.cuda())
             seqEndIdx = torch.arange(0, encodedData.size(0)*encodedData.size(1) + 1, encodedData.size(1)).cuda()
             
