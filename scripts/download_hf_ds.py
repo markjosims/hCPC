@@ -6,6 +6,8 @@ import os
 from argparse import ArgumentParser
 from datasets import load_dataset, DatasetDict, Dataset
 from huggingface_hub import login, HfFolder
+from pydub import AudioSegment
+import numpy as np
 
 """
 Author: Mark Simmons
@@ -40,7 +42,7 @@ def init_args(parser: ArgumentParser) -> None:
     add_arg(
         '--type',
         '-t',
-        choices=['CSV', 'JSON'],
+        choices=['CSV', 'JSON', 'DIR'],
         help='Format to save dataset to. If None, use dataset.save_to_disk().'
     )
 
@@ -52,6 +54,8 @@ def save_dataset(
     if file_type is None:
         data.save_to_disk(path)
         return path
+    elif file_type == 'DIR':
+        return make_splitdir(data, path)
     if type(data) is Dataset:
         if file_type=='JSON':
             data.to_json(path)
@@ -79,8 +83,34 @@ def save_datasetdict(
         else:
             raise ValueError(f"file_type must be 'JSON' or 'CSV', {file_type=}")
 
-
     return path
+
+def save_audio(row: dict, path: str) -> None:
+    audio = row['audio']
+    audio_path = os.path.join(path, audio['path'])
+    audio_array = audio['array'].astype(np.float32)
+    audio_bytes = audio_array.tobytes()
+    sample_width = audio_array.dtype.itemsize
+    sample_rate = audio['sampling_rate']
+    audio_obj = AudioSegment(
+        audio_bytes,
+        frame_rate=sample_rate,
+        sample_width=sample_width,
+        channels=1,
+    )
+    audio_obj.export(audio_path, format='wav')
+
+def make_splitdir(data: DatasetDict, path: str) -> dict:
+    for split, split_data in data.items():
+        split_dir = os.path.join(path, split)
+        os.mkdir(split_dir)
+        split_fp = os.path.join(path, split+'.txt')
+        with open(split_fp, 'w') as f:
+            def save_split(row: dict) -> None:
+                record_path = row['audio']['path']
+                f.write(record_path+'\n')
+                save_audio(row, split_dir)
+            split_data.map(save_split)
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = ArgumentParser("Download HuggingFace Dataset")
