@@ -61,10 +61,11 @@ def run(featureMaker,
         with torch.no_grad():
             batchData, labelData = fulldata
             label = labelData.get('phone', None)
-            cFeature, encodedData, label, extraLosses = model(batchData.cuda(), label.cuda())
+            cuda_label = label.cuda() if label is not None else None
+            cFeature, encodedData, label, extraLosses = model(batchData.cuda(), cuda_label)
             seqEndIdx = torch.arange(0, encodedData.size(0)*encodedData.size(1) + 1, encodedData.size(1)).cuda()
             
-            predictedBoundaries = segmenter(cFeature, encodedData, label.cuda(), returnBoundaries=True).bool()
+            predictedBoundaries = segmenter(cFeature, encodedData, cuda_label, returnBoundaries=True).bool()
             predictedBoundaries = torch.nonzero(predictedBoundaries.view(-1), as_tuple=True)[0]
             # Ensure that minibatch boundaries are preserved
             predictedBoundaries = torch.unique(torch.cat((predictedBoundaries, seqEndIdx)), sorted=True)
