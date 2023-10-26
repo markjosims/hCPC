@@ -71,8 +71,11 @@ def run(featureMaker,
             predictedBoundaries = torch.unique(torch.cat((predictedBoundaries, seqEndIdx)), sorted=True)
 
         if output_segments:
-            print(predictedBoundaries)
-            return
+            tqdm.tqdm.write(predictedBoundaries)
+        
+        if label is None:
+            # skip evaluation if no labels provided
+            continue
 
         maxRval = -np.inf
         diffs = torch.diff(label, dim=1)
