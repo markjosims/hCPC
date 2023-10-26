@@ -71,7 +71,7 @@ def run(featureMaker,
             predictedBoundaries = torch.unique(torch.cat((predictedBoundaries, seqEndIdx)), sorted=True)
 
         if output_segments:
-            tqdm.tqdm.write(predictedBoundaries)
+            tqdm.tqdm.write(str(predictedBoundaries))
         
         if label is None:
             # skip evaluation if no labels provided
