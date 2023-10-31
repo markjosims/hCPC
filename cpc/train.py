@@ -568,6 +568,7 @@ def main(args):
     print(f'CONFIG:\n{json.dumps(vars(args), indent=4, sort_keys=True)}')
     print('-' * 50)
 
+    breakpoint()
     seqNames, speakers = findAllSeqs(args.pathDB,
                                      extension=args.file_extension,
                                      loadCache=not args.ignore_cache)
@@ -577,6 +578,7 @@ def main(args):
         # Datasets
         if args.pathTrain is not None and len(args.pathTrain) == len(args.pathDB):
             seqTrain = filterSeqs(args.pathTrain, seqNames)
+            breakpoint()
         else:
             seqTrain = seqNames
 
