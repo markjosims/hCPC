@@ -60,6 +60,7 @@ def run(featureMaker,
     for step, fulldata in tqdm.tqdm(enumerate(dataLoader)):
         with torch.no_grad():
             batchData, labelData = fulldata
+            breakpoint()
             label = labelData.get('phone', None)
             cuda_label = label.cuda() if label is not None else None
             cFeature, encodedData, label, extraLosses = model(batchData.cuda(), cuda_label)
