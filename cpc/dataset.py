@@ -240,7 +240,7 @@ class AudioBatchData(Dataset):
         outData = self.data[idx:(self.sizeWindow + idx)].view(1, -1)
         labelData = {}
         labelData['speaker'] = torch.tensor(self.getSpeakerLabel(idx), dtype=torch.long)
-        labelData['seqIdx'] = torch.tensor(self.getSeqIdx(idx)[0], dtype=torch.long)
+        labelData['seqIdx'] = torch.tensor(self.getSeqIdx(idx), dtype=torch.long)
         if self.phoneSize > 0:
             label_phone = torch.tensor(self.getPhonem(idx), dtype=torch.long)
             labelData['phone'] = label_phone
