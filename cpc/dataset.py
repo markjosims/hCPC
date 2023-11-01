@@ -16,6 +16,7 @@ from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.sampler import Sampler, BatchSampler
 import torchaudio
 
+from typing import Sequence
 
 class AudioBatchData(Dataset):
 
@@ -199,7 +200,27 @@ class AudioBatchData(Dataset):
     def getWord(self, idx):
         idWord = idx // self.wordSize
         return self.wordLabels[idWord:(idWord + self.wordStep)]
-        
+
+    def getSeqName(self, idx):
+        label_idx = self.binary_search_max_less(self.seqLabel, idx)
+
+        return self.seqNames[label_idx]
+
+    def binary_search_max_less(self, a: Sequence[int], tgt: int, i: int=0) -> int:
+        """
+        Given list of numbers a and target value tgt,
+        return the largest index whose value is less than tgt.
+        """
+        if len(a) == 1:
+            return i
+
+        mid_i = len(a)//2
+        if a[mid_i] > tgt:
+            return self.binary_search_max_less(a[:mid_i], tgt, i)
+        if a[mid_i] < tgt:
+            return self.binary_search_max_less(a[mid_i:], tgt, i+mid_i)
+        return i+mid_i
+
     def getSpeakerLabel(self, idx):
         idSpeaker = next(x[0] for x in enumerate(
             self.speakerLabel) if x[1] > idx) - 1
@@ -217,6 +238,7 @@ class AudioBatchData(Dataset):
         outData = self.data[idx:(self.sizeWindow + idx)].view(1, -1)
         labelData = {}
         labelData['speaker'] = torch.tensor(self.getSpeakerLabel(idx), dtype=torch.long)
+        labelData['seqName'] = torch.tensor(self.getSeqName(idx)[0], dtype=torch.long)
         if self.phoneSize > 0:
             label_phone = torch.tensor(self.getPhonem(idx), dtype=torch.long)
             labelData['phone'] = label_phone
