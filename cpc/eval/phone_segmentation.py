@@ -13,6 +13,7 @@ from copy import deepcopy
 import os
 import tqdm
 import random
+from pympi import Praat
 
 import cpc.criterion as cr
 import cpc.criterion.soft_align as sa
@@ -39,7 +40,7 @@ def run(featureMaker,
         pathCheckpoint,
         onEncodings,
         toleranceInFrames=2,
-        output_segments=False,
+        output_path=None,
         strict=False):
     print("%d batches" % len(dataLoader))
 
@@ -67,12 +68,30 @@ def run(featureMaker,
             seqEndIdx = torch.arange(0, encodedData.size(0)*encodedData.size(1) + 1, encodedData.size(1)).cuda()
             
             predictedBoundaries = segmenter(cFeature, encodedData, cuda_label, returnBoundaries=True).bool()
+            if output_path:
+                # create textgrid for each sequence before flattening predictedBoundaries
+                seqIdcs = labelData['seqIdx'].tolist()
+                boundariesList = predictedBoundaries.tolist()
+                for seqIdx, boundaries in zip(seqIdcs, boundariesList):
+                    _, seqPath = dataLoader.dataset.getSeqName(seqIdx)
+                    # TODO: create pympi.Textgrid, link recording and write boundaries
+                    tgPath = os.path.join(output_path, seqPath.stem+'.TextGrid')
+                    tg = Praat.TextGrid()
+                    phone_tier = tg.add_tier('phone')
+                    last_b = None
+                    for b in boundaries:
+                        if not last_b:
+                            pass
+                        else:
+                            phone_tier.add_interval(last_b, b)
+                        last_b = b
+                    tqdm.tqdm.write(f'Saving output for sequence {seqPath} to {tgPath}.')
+                    tg.to_file(tgPath)
+            
             predictedBoundaries = torch.nonzero(predictedBoundaries.view(-1), as_tuple=True)[0]
             # Ensure that minibatch boundaries are preserved
             predictedBoundaries = torch.unique(torch.cat((predictedBoundaries, seqEndIdx)), sorted=True)
 
-        if output_segments:
-            tqdm.tqdm.write(str(predictedBoundaries))
         
         if label is None:
             # skip evaluation if no labels provided
@@ -183,8 +202,8 @@ def parse_args(argv):
     parser.add_argument('--ignore_cache', action='store_true',
                         help="Activate if the sequences in pathDB have"
                         " changed.")
-    parser.add_argument('--output_segments', '-os',
-                        help='Save segments to an output file.')
+    parser.add_argument('--output_path', '-op',
+                        help='Directory to save TextGrid files with output.')
     parser.add_argument('--no_labels', '-nl', action='store_true',
                         help="Skip evaluating against gold labels, output predictions only.")
     parser.add_argument('--size_window', type=int, default=20480,
@@ -262,7 +281,7 @@ def main(argv):
     # with open(f"{pathCheckpoint}_args.json", 'w') as file:
     #     json.dump(vars(args), file, indent=2)
 
-    run(model, dataLoader, pathCheckpoint, args.get_encoded, args.tolerance, args.output_segments, args.strict)
+    run(model, dataLoader, pathCheckpoint, args.get_encoded, args.tolerance, args.output_path, args.strict)
 
 
 
