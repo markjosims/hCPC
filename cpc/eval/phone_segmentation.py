@@ -73,6 +73,7 @@ def run(featureMaker,
                 seqIdcs = labelData['seqIdx'].tolist()
                 boundariesList = predictedBoundaries.tolist()
                 for seqIdx, boundaries in zip(seqIdcs, boundariesList):
+                    boundaries = torch.nonzero(boundaries).flatten().tolist()
                     _, seqPath = dataLoader.dataset.getSeqName(seqIdx)
                     # TODO: create pympi.Textgrid, link recording and write boundaries
                     tgPath = os.path.join(output_path, seqPath.stem+'.TextGrid')
