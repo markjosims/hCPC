@@ -82,7 +82,6 @@ def run(featureMaker,
                     # need to look into how to open audiofile
                     audio = AudioSegment.from_file(seqPath)
                     duration_seconds = audio.duration_seconds
-                    breakpoint()
                     # TODO: create pympi.Textgrid, link recording and write boundaries
                     tgPath = os.path.join(output_path, seqPath.stem+'.TextGrid')
                     tg = Praat.TextGrid(xmax=duration_seconds)
