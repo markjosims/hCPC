@@ -93,7 +93,7 @@ def run(featureMaker,
                         if not last_b:
                             pass
                         else:
-                            phone_tier.add_interval(last_b, b)
+                            phone_tier.add_interval(last_b, b, '')
                         last_b = b
                     tqdm.tqdm.write(f'Saving output for sequence {seqPath} to {tgPath}.')
                     tg.to_file(tgPath)
