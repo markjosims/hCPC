@@ -16,6 +16,7 @@ dependencies:
   - cython
   - pysoundfile
   - scipy
+  - pympi-ling
   - pip:
     - progressbar2
     - matplotlib
