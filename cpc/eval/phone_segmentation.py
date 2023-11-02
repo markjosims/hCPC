@@ -73,6 +73,7 @@ def run(featureMaker,
                 seqIdcs = labelData['seqIdx'].tolist()
                 boundariesList = predictedBoundaries
                 for seqIdx, boundaries in zip(seqIdcs, boundariesList):
+                    breakpoint()
                     boundaries = torch.nonzero(boundaries).flatten().tolist()
                     # Librispeech uses 160bit = 10ms for each frame
                     # TODO: get framelength dynamically
