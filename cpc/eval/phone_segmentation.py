@@ -73,6 +73,10 @@ def run(featureMaker,
                 boundariesList = predictedBoundaries
                 for seqIdx, boundaries in zip(seqIdcs, boundariesList):
                     boundaries = torch.nonzero(boundaries).flatten().tolist()
+                    # Librispeech uses 160bit = 10ms for each frame
+                    # ideally this should be calculated dynamically
+                    MS_PER_FRAME = 10
+                    boundary_timestamps = [b*MS_PER_FRAME for b in boundaries]
                     _, seqPath = dataLoader.dataset.getSeqName(seqIdx)
                     breakpoint()
                     # TODO: create pympi.Textgrid, link recording and write boundaries
@@ -80,7 +84,7 @@ def run(featureMaker,
                     tg = Praat.TextGrid()
                     phone_tier = tg.add_tier('phone')
                     last_b = None
-                    for b in boundaries:
+                    for b in boundary_timestamps:
                         if not last_b:
                             pass
                         else:
