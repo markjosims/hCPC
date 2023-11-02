@@ -14,6 +14,7 @@ import os
 import tqdm
 import random
 from pympi import Praat
+import scipy.io.wavfile as wav
 
 import cpc.criterion as cr
 import cpc.criterion.soft_align as sa
@@ -78,10 +79,13 @@ def run(featureMaker,
                     MS_PER_FRAME = 10
                     boundary_timestamps = [b*MS_PER_FRAME for b in boundaries]
                     _, seqPath = dataLoader.dataset.getSeqName(seqIdx)
+                    (source_rate, source_sig) = wav.read(seqPath)
+                    duration_seconds = len(source_sig) / float(source_rate)
+                    duration_ms = duration_seconds*1000
                     breakpoint()
                     # TODO: create pympi.Textgrid, link recording and write boundaries
                     tgPath = os.path.join(output_path, seqPath.stem+'.TextGrid')
-                    tg = Praat.TextGrid()
+                    tg = Praat.TextGrid(xmax=duration_ms)
                     phone_tier = tg.add_tier('phone')
                     last_b = None
                     for b in boundary_timestamps:
