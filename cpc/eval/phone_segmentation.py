@@ -61,7 +61,6 @@ def run(featureMaker,
     for step, fulldata in tqdm.tqdm(enumerate(dataLoader)):
         with torch.no_grad():
             batchData, labelData = fulldata
-            breakpoint()
             label = labelData.get('phone', None)
             cuda_label = label.cuda() if label is not None else None
             cFeature, encodedData, label, extraLosses = model(batchData.cuda(), cuda_label)
@@ -71,10 +70,11 @@ def run(featureMaker,
             if output_path:
                 # create textgrid for each sequence before flattening predictedBoundaries
                 seqIdcs = labelData['seqIdx'].tolist()
-                boundariesList = predictedBoundaries.tolist()
+                boundariesList = predictedBoundaries
                 for seqIdx, boundaries in zip(seqIdcs, boundariesList):
                     boundaries = torch.nonzero(boundaries).flatten().tolist()
                     _, seqPath = dataLoader.dataset.getSeqName(seqIdx)
+                    breakpoint()
                     # TODO: create pympi.Textgrid, link recording and write boundaries
                     tgPath = os.path.join(output_path, seqPath.stem+'.TextGrid')
                     tg = Praat.TextGrid()
