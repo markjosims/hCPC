@@ -75,18 +75,17 @@ def run(featureMaker,
                 for seqIdx, boundaries in zip(seqIdcs, boundariesList):
                     boundaries = torch.nonzero(boundaries).flatten().tolist()
                     # Librispeech uses 160bit = 10ms for each frame
-                    # ideally this should be calculated dynamically
-                    MS_PER_FRAME = 10
-                    boundary_timestamps = [b*MS_PER_FRAME for b in boundaries]
+                    # TODO: get framelength dynamically
+                    FRAMES_PER_SEC = 100
+                    boundary_timestamps = [b/FRAMES_PER_SEC for b in boundaries]
                     _, seqPath = dataLoader.dataset.getSeqName(seqIdx)
                     # need to look into how to open audiofile
                     audio = AudioSegment.from_file(seqPath)
                     duration_seconds = audio.duration_seconds
-                    duration_ms = duration_seconds*1000
                     breakpoint()
                     # TODO: create pympi.Textgrid, link recording and write boundaries
                     tgPath = os.path.join(output_path, seqPath.stem+'.TextGrid')
-                    tg = Praat.TextGrid(xmax=duration_ms)
+                    tg = Praat.TextGrid(xmax=duration_seconds)
                     phone_tier = tg.add_tier('phone')
                     last_b = None
                     for b in boundary_timestamps:
