@@ -14,7 +14,7 @@ import os
 import tqdm
 import random
 from pympi import Praat
-import scipy.io.wavfile as wav
+from pydub import AudioSegment
 
 import cpc.criterion as cr
 import cpc.criterion.soft_align as sa
@@ -79,8 +79,9 @@ def run(featureMaker,
                     MS_PER_FRAME = 10
                     boundary_timestamps = [b*MS_PER_FRAME for b in boundaries]
                     _, seqPath = dataLoader.dataset.getSeqName(seqIdx)
-                    (source_rate, source_sig) = wav.read(seqPath)
-                    duration_seconds = len(source_sig) / float(source_rate)
+                    # need to look into how to open audiofile
+                    audio = AudioSegment.from_file(seqPath)
+                    duration_seconds = audio.duration_seconds
                     duration_ms = duration_seconds*1000
                     breakpoint()
                     # TODO: create pympi.Textgrid, link recording and write boundaries
