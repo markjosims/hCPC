@@ -127,9 +127,9 @@ def run(featureMaker,
             precision = torch.Tensor([true_positive / (f_cnt + EPS)])
             recall = torch.Tensor([true_positive / (g_cnt + EPS)])
             f1 = 2 * (precision * recall) / (precision + recall + EPS)
-            os = recall / (precision + EPS) - 1
-            r1 = np.sqrt((1 - recall) ** 2 + os ** 2)
-            r2 = (-os + recall - 1) / (np.sqrt(2))
+            OS = recall / (precision + EPS) - 1
+            r1 = np.sqrt((1 - recall) ** 2 + OS ** 2)
+            r2 = (-OS + recall - 1) / (np.sqrt(2))
             rVal = 1 - (np.abs(r1) + np.abs(r2)) / 2
         else:
             precisionCounter = 0
@@ -146,9 +146,9 @@ def run(featureMaker,
             precision = precisionCounter / (len(predictedBoundaries) + EPS)
             recall = recallCounter / (len(trueBoundaries) + EPS)
             f1 = 2 * (precision * recall) / (precision + recall + EPS)
-            os = recall / (precision + EPS) - 1
-            r1 = torch.sqrt((1 - recall) ** 2 + os ** 2)
-            r2 = (-os + recall - 1) / (np.sqrt(2))
+            OS = recall / (precision + EPS) - 1
+            r1 = torch.sqrt((1 - recall) ** 2 + OS ** 2)
+            r2 = (-OS + recall - 1) / (np.sqrt(2))
             rVal = 1 - (torch.abs(r1) + torch.abs(r2)) / 2
 
         logs["precision"] += precision.view(1).cpu().numpy()
