@@ -6,8 +6,7 @@ import os
 from argparse import ArgumentParser
 from datasets import load_dataset, DatasetDict, Dataset
 from huggingface_hub import login, HfFolder
-from pydub import AudioSegment
-import numpy as np
+import soundfile
 
 """
 Author: Mark Simmons
@@ -88,17 +87,9 @@ def save_datasetdict(
 def save_audio(row: dict, path: str) -> None:
     audio = row['audio']
     audio_path = os.path.join(path, audio['path'])
-    audio_array = audio['array'].astype(np.float32)
-    audio_bytes = audio_array.tobytes()
-    sample_width = audio_array.dtype.itemsize
+    audio_array = audio['array']
     sample_rate = audio['sampling_rate']
-    audio_obj = AudioSegment(
-        audio_bytes,
-        frame_rate=sample_rate,
-        sample_width=sample_width,
-        channels=1,
-    )
-    audio_obj.export(audio_path, format='wav')
+    soundfile.write(audio_path, audio_array, samplerate=sample_rate)
 
 def make_splitdir(data: DatasetDict, path: str) -> dict:
     for split, split_data in data.items():
