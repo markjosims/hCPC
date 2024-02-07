@@ -9,6 +9,7 @@ CARON = '\u0304'
 CIRCM = '\u0302'
 TONES = [ACUTE, GRAVE, MACRN, CARON, CIRCM]
 
+OTHER_CHARS_TO_EXCLUDE = ["´", "̊", "̋", "̏", "̯", "̺", "͡",]
 
 DATA_DIR = '/mnt/cube/home/AD/mjsimmons/hCPC/data/tira-asr/himidan'
 ASR = '/mnt/cube/home/AD/mjsimmons/markjosims/tira-asr'
@@ -16,6 +17,8 @@ ASR = '/mnt/cube/home/AD/mjsimmons/markjosims/tira-asr'
 def strip_tone(text: str) -> str:
     for t in TONES:
         text = text.replace(t, '')
+    for c in OTHER_CHARS_TO_EXCLUDE:
+        text = text.replace(c, '')
     return text
 
 def save_transcription_file(row: Mapping, split_dir: str) -> None:
