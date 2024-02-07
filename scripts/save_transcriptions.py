@@ -1,4 +1,4 @@
-from datasets import load_dataset
+from datasets import DatasetDict
 from typing import Mapping
 from pathlib import Path
 
@@ -9,7 +9,9 @@ CARON = '\u0304'
 CIRCM = '\u0302'
 TONES = [ACUTE, GRAVE, MACRN, CARON, CIRCM]
 
+
 DATA_DIR = '/mnt/cube/home/AD/mjsimmons/hCPC/data/tira-asr/himidan'
+ASR = '/mnt/cube/home/AD/mjsimmons/markjosims/tira-asr'
 
 def strip_tone(text: str) -> str:
     for t in TONES:
@@ -28,7 +30,7 @@ def save_transcription_file(row: Mapping, split_dir: str) -> None:
     
 
 if __name__ == '__main__':
-    ds = load_dataset('markjosims/tira-asr')
+    ds = DatasetDict.load_from_disk(ASR)
     for split, split_ds in ds.items():
         split_dir = Path(DATA_DIR)/split
         split_ds.map(lambda row: save_transcription_file(row, split_dir))
